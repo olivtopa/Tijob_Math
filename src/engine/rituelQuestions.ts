@@ -166,14 +166,34 @@ export function generateGeometryRituelQuestion(): RituelQuestion {
 }
 
 function buildRituelQuestion(prompt: string, answer: string, distractors: string[], subCategory: 'mental' | 'flashcards' | 'geometry'): RituelQuestion {
-  let options = [answer, ...distractors];
-  options = options.filter((v, i, self) => self.indexOf(v) === i);
-  options.sort(() => Math.random() - 0.5);
+  const correctStr = String(answer).trim();
+  const cleanDistractors = distractors
+    .map(v => String(v).trim())
+    .filter(v => v !== '' && v !== correctStr);
+  
+  const uniqueDistractors = Array.from(new Set(cleanDistractors));
+  while (uniqueDistractors.length < 3) {
+    uniqueDistractors.push(`${correctStr}*${uniqueDistractors.length + 1}`);
+  }
+
+  const selectedDistractors = uniqueDistractors.slice(0, 3);
+  const allOptions = [correctStr, ...selectedDistractors];
+
+  // Mélange Fisher-Yates
+  for (let i = allOptions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+  }
+
+  if (!allOptions.includes(correctStr)) {
+    allOptions[0] = correctStr;
+  }
+
   return {
     id: `rituel_${Date.now()}_${Math.random()}`,
     prompt,
-    options: options.slice(0, 4),
-    answer,
+    options: allOptions,
+    answer: correctStr,
     subCategory
   };
 }

@@ -12,14 +12,40 @@ export function generateDynamicQuestion(realm: string, questIndex: number): Dyna
   };
 
   const setupOptions = (correct: string, list: string[]) => {
-    let opts = [correct, ...list].map(String);
-    opts = opts.filter((v, i, self) => self.indexOf(v) === i);
-    opts.sort(() => Math.random() - 0.5);
-    if (opts.indexOf(String(correct)) === -1) {
-      opts[0] = String(correct);
+    const correctStr = String(correct).trim();
+    // Nettoyage et dédoublonnage des distracteurs
+    const cleanList = list
+      .map(v => String(v).trim())
+      .filter(v => v !== '' && v !== correctStr && !v.includes('NaN') && !v.includes('undefined'));
+    
+    // Garder uniquement les distracteurs uniques
+    const uniqueDistractors = Array.from(new Set(cleanList));
+
+    // Si on a moins de 3 distracteurs valides, ajouter des variantes sûres
+    while (uniqueDistractors.length < 3) {
+      const fallback = `${correctStr}*${uniqueDistractors.length + 1}`;
+      uniqueDistractors.push(fallback);
     }
-    q.options = opts.slice(0, 4);
-    q.answer = String(correct);
+
+    // Sélection de 3 distracteurs
+    const selectedDistractors = uniqueDistractors.slice(0, 3);
+    
+    // Construction des 4 options avec la bonne réponse garantie
+    const allOptions = [correctStr, ...selectedDistractors];
+
+    // Mélange Fisher-Yates fiable
+    for (let i = allOptions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+    }
+
+    // Sécurité absolue : s'assurer que la bonne réponse est présente
+    if (!allOptions.includes(correctStr)) {
+      allOptions[0] = correctStr;
+    }
+
+    q.options = allOptions;
+    q.answer = correctStr;
   };
 
   if (realm === 'Algèbre') {
@@ -625,10 +651,10 @@ export function generateDynamicQuestion(realm: string, questIndex: number): Dyna
     } else if (questIndex === 1) {
       const isTree = Math.random() > 0.5;
       if (isTree) {
-        const correctVal = '1/6';
+        const correctVal = '1/36';
         q.title = 'Probabilités — Tirage Successif';
         q.question = 'Un dé à 6 faces est lancé deux fois de suite. Quelle est la probabilité d\'obtenir un double six $(6, 6)$ ?';
-        setupOptions(correctVal, ['1/36', '1/12', '2/6']);
+        setupOptions(correctVal, ['1/6', '1/12', '2/6']);
         q.explanationHtml = `
           <div><strong>Événements indépendants :</strong> La probabilité d'un 6 au 1er lancer est $\\frac{1}{6}$ et au 2nd lancer est $\\frac{1}{6}$.</div>
           <div><strong>Calcul :</strong> $P(6, 6) = \\frac{1}{6} \\times \\frac{1}{6} = \\frac{1}{36}$.</div>

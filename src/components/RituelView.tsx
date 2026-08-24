@@ -83,7 +83,17 @@ export const RituelView: React.FC<RituelViewProps> = ({
   const handleAnswerClick = (option: string) => {
     if (!currentQ || isFinished || timerLeft <= 0) return;
 
-    const isCorrect = option.trim().toLowerCase() === currentQ.answer.trim().toLowerCase();
+    const normalizeAnswer = (str: string): string => {
+      return str
+        .replace(/\$/g, '')
+        .replace(/\\text\{([^}]+)\}/g, '$1')
+        .replace(/\\,/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+    };
+
+    const isCorrect = normalizeAnswer(option) === normalizeAnswer(currentQ.answer);
 
     if (isCorrect) {
       setSessionScore(prev => prev + 1);

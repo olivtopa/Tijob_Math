@@ -91,9 +91,19 @@ export function App() {
     setCurrentView('combat');
   };
 
+  const normalizeAnswer = (str: string): string => {
+    return str
+      .replace(/\$/g, '')
+      .replace(/\\text\{([^}]+)\}/g, '$1')
+      .replace(/\\,/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  };
+
   const handleAnswerSubmit = (userAnswer: string) => {
     if (!currentQuestion) return;
-    const isCorrect = userAnswer.trim().toLowerCase() === currentQuestion.answer.trim().toLowerCase();
+    const isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(currentQuestion.answer);
 
     if (isCorrect) {
       setGameState(prev => ({
