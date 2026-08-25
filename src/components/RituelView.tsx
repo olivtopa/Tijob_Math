@@ -21,7 +21,7 @@ export const RituelView: React.FC<RituelViewProps> = ({
   const [currentQ, setCurrentQ] = useState<RituelQuestion | null>(null);
   const [isFinished, setIsFinished] = useState<boolean>(false);
   const [rewardToast, setRewardToast] = useState<{ show: boolean; text: string } | null>(null);
-
+  const recentPromptsRef = useRef<string[]>([]);
   const timerRef = useRef<any>(null);
 
   // Timer 45 secondes strict
@@ -47,7 +47,10 @@ export const RituelView: React.FC<RituelViewProps> = ({
     setSessionScore(0);
     setIsFinished(false);
     setRewardToast(null);
-    setCurrentQ(generateNextRituelQuestion(stage));
+    recentPromptsRef.current = [];
+    const firstQ = generateNextRituelQuestion(stage, []);
+    recentPromptsRef.current.push(firstQ.prompt);
+    setCurrentQ(firstQ);
   };
 
   const handleEndSession = () => {
@@ -102,8 +105,13 @@ export const RituelView: React.FC<RituelViewProps> = ({
       setTimeout(() => setRewardToast(null), 450);
     }
 
-    // Passage immédiat à la question suivante (zéro latence)
-    setCurrentQ(generateNextRituelQuestion(activeStage!));
+    // Passage immédiat à la question suivante avec exclusion des questions déjà posées
+    const nextQ = generateNextRituelQuestion(activeStage!, recentPromptsRef.current);
+    recentPromptsRef.current.push(nextQ.prompt);
+    if (recentPromptsRef.current.length > 20) {
+      recentPromptsRef.current.shift();
+    }
+    setCurrentQ(nextQ);
   };
 
   const highScores = gameState.highScores || { mental: 0, flashcards: 0, geometry: 0 };

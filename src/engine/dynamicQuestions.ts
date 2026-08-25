@@ -522,43 +522,54 @@ export function generateDynamicQuestion(realm: string, questIndex: number): Dyna
         `;
       };
     } else if (questIndex === 2) {
-      const angle = 30;
-      const hyp = 10;
-      const opp = 5;
+      const angles = [
+        { deg: 30, sinVal: '0{,}5', sinNum: 0.5 },
+        { deg: 45, sinVal: '0{,}707', sinNum: 0.707 },
+        { deg: 60, sinVal: '0{,}866', sinNum: 0.866 }
+      ];
+      const selectedAngle = angles[Math.floor(Math.random() * angles.length)];
+      const hypList = [8, 10, 12, 14, 16, 20];
+      const hyp = hypList[Math.floor(Math.random() * hypList.length)];
+      const opp = (hyp * selectedAngle.sinNum).toFixed(1).replace('.', ',');
       const correctVal = `${opp} cm`;
 
       q.title = 'Trigonométrie (Sinus / Cosinus / Tangente)';
-      q.question = `Dans un triangle $RST$ rectangle en $S$, l'hypoténuse $RT = ${hyp}\\text{ cm}$ et l'angle $\\widehat{SRT} = ${angle}^\\circ$. Sachant que $\\sin(${angle}^\\circ) = 0{,}5$, calcule la longueur du côté opposé $ST$.`;
-      setupOptions(correctVal, ['8.66 cm', '7.5 cm', '20 cm']);
+      q.question = `Dans un triangle $RST$ rectangle en $S$, l'hypoténuse $RT = ${hyp}\\text{ cm}$ et l'angle $\\widehat{SRT} = ${selectedAngle.deg}^\\circ$. Sachant que $\\sin(${selectedAngle.deg}^\\circ) \\approx ${selectedAngle.sinVal}$, calcule la longueur du côté opposé $ST$.`;
+      setupOptions(correctVal, [
+        `${(hyp * (1 - selectedAngle.sinNum)).toFixed(1).replace('.', ',')} cm`,
+        `${(hyp * 0.8).toFixed(1).replace('.', ',')} cm`,
+        `${hyp * 2} cm`
+      ]);
       q.explanationHtml = `
         <div><strong>Formule :</strong> Dans le triangle rectangle, $\\sin(\\widehat{SRT}) = \\frac{\\text{Côté Opposé}}{\\text{Hypoténuse}} = \\frac{ST}{RT}$.</div>
-        <div><strong>Calcul :</strong> $ST = RT \\times \\sin(${angle}^\\circ) = ${hyp} \\times 0{,}5 = ${opp}\\text{ cm}$.</div>
+        <div><strong>Calcul :</strong> $ST = RT \\times \\sin(${selectedAngle.deg}^\\circ) \\approx ${hyp} \\times ${selectedAngle.sinVal} = ${opp}\\text{ cm}$.</div>
       `;
       q.hints = [
         { level: 1, title: 'Formule SOH', content: '$\\sin(\\text{angle}) = \\frac{\\text{Opposé}}{\\text{Hypoténuse}}$.' },
-        { level: 2, title: 'Application', content: `$ST = RT \\times \\sin(${angle}^\\circ) = ${hyp} \\times 0{,}5$.` }
+        { level: 2, title: 'Application', content: `$ST = RT \\times \\sin(${selectedAngle.deg}^\\circ) \\approx ${hyp} \\times ${selectedAngle.sinVal}$.` }
       ];
       q.svgOverlay = (svg) => {
         svg.innerHTML = `
           <text x="150" y="24" fill="#10b981" font-size="15" font-weight="bold" text-anchor="middle">Triangle rectangle RST</text>
           <polygon points="60,185 240,185 240,95" fill="rgba(56, 189, 248, 0.15)" stroke="#38bdf8" stroke-width="2.5"/>
           <rect x="222" y="167" width="18" height="18" fill="none" stroke="#f59e0b" stroke-width="2"/>
-          <text x="40" y="198" fill="#fff" font-size="15" font-weight="bold">R (30°)</text>
+          <text x="40" y="198" fill="#fff" font-size="15" font-weight="bold">R (${selectedAngle.deg}°)</text>
           <text x="252" y="198" fill="#fff" font-size="15" font-weight="bold">S</text>
           <text x="252" y="90" fill="#fff" font-size="15" font-weight="bold">T</text>
-          <text x="135" y="130" fill="#38bdf8" font-size="14" font-weight="bold">RT = 10 cm</text>
+          <text x="135" y="130" fill="#38bdf8" font-size="14" font-weight="bold">RT = ${hyp} cm</text>
           <text x="255" y="145" fill="#f59e0b" font-size="15" font-weight="extrabold">ST = ?</text>
         `;
       };
     } else {
-      const k = 3;
-      const initialVol = 12;
+      const kList = [2, 3, 4];
+      const k = kList[Math.floor(Math.random() * kList.length)];
+      const initialVol = Math.floor(Math.random() * 10) + 5;
       const finalVol = initialVol * (k * k * k);
       const correctVal = `${finalVol} cm³`;
 
       q.title = 'Agrandissement & Réduction (Volumes)';
       q.question = `On applique un agrandissement de rapport $k = ${k}$ à un solide de volume $V = ${initialVol}\\text{ cm}^3$. Quel est le nouveau volume $V'$ du solide ?`;
-      setupOptions(correctVal, [`${initialVol * k} cm³`, `${initialVol * k * k} cm³`, `${finalVol + 10} cm³`]);
+      setupOptions(correctVal, [`${initialVol * k} cm³`, `${initialVol * k * k} cm³`, `${finalVol + initialVol * 2} cm³`]);
       q.explanationHtml = `
         <div><strong>Propriété des agrandissements/réductions :</strong> Dans un agrandissement de rapport $k$, les longueurs sont multipliées par $k$, les aires par $k^2$ et les volumes par $k^3$.</div>
         <div><strong>Calcul :</strong> $V' = V \\times k^3 = ${initialVol} \\times ${k}^3 = ${initialVol} \\times ${k * k * k} = ${finalVol}\\text{ cm}^3$.</div>
@@ -586,13 +597,15 @@ export function generateDynamicQuestion(realm: string, questIndex: number): Dyna
     if (questIndex === 0) {
       const isMediane = Math.random() > 0.5;
       if (isMediane) {
-        const series = [4, 7, 9, 12, 15, 18, 20];
-        const med = 12;
+        const base = Math.floor(Math.random() * 5) + 2;
+        const step = Math.floor(Math.random() * 3) + 2;
+        const series = [base, base + step, base + step * 2, base + step * 3, base + step * 4, base + step * 5, base + step * 6];
+        const med = series[3];
         const correctVal = `${med}`;
 
         q.title = 'Statistiques — Médiane d\'une Série';
         q.question = `Détermine la médiane de la série statistique ordonnée suivante : $${series.join(' \\; ; \\; ')}$.`;
-        setupOptions(correctVal, [`11`, `15`, `12.5`]);
+        setupOptions(correctVal, [`${med - step}`, `${med + step}`, `${med + 1}`]);
         q.explanationHtml = `
           <div><strong>Définition :</strong> La médiane est la valeur qui partage la série ordonnée en deux groupes de même effectif (50% en dessous, 50% au-dessus).</div>
           <div><strong>Effectif total :</strong> $N = 7$ (impair). La médiane est la $\\frac{7+1}{2} = 4^{\\text{ème}}$ valeur, soit $${med}$.</div>
@@ -615,15 +628,17 @@ export function generateDynamicQuestion(realm: string, questIndex: number): Dyna
           `;
         };
       } else {
-        const notes = [12, 14, 16, 18];
-        const mean = (notes.reduce((a, b) => a + b, 0) / notes.length).toFixed(1);
+        const offset = Math.floor(Math.random() * 5);
+        const notes = [10 + offset, 12 + offset, 14 + offset, 16 + offset];
+        const sum = notes.reduce((a, b) => a + b, 0);
+        const mean = (sum / notes.length).toFixed(1).replace('.0', '');
         const correctVal = `${mean}`;
 
         q.title = 'Statistiques — Calcul de Moyenne';
         q.question = `Un élève obtient les notes suivantes : $${notes.join(' \\; ; \\; ')}$. Quelle est sa moyenne ?`;
-        setupOptions(correctVal, [`${Number(mean) + 1}`, `${Number(mean) - 1.5}`, `14.5`]);
+        setupOptions(correctVal, [`${Number(mean) + 1}`, `${Number(mean) - 1.5}`, `${Number(mean) + 2}`]);
         q.explanationHtml = `
-          <div><strong>Calcul :</strong> $\\text{Moyenne} = \\frac{${notes.join(' + ')}}{${notes.length}} = \\frac{${notes.reduce((a, b) => a + b, 0)}}{${notes.length}} = ${mean}$.</div>
+          <div><strong>Calcul :</strong> $\\text{Moyenne} = \\frac{${notes.join(' + ')}}{${notes.length}} = \\frac{${sum}}{${notes.length}} = ${mean}$.</div>
         `;
         q.hints = [
           { level: 1, title: 'Somme des valeurs', content: `Additionne toutes les notes : $${notes.join(' + ')} = ${notes.reduce((a, b) => a + b, 0)}$.` },
@@ -681,21 +696,31 @@ export function generateDynamicQuestion(realm: string, questIndex: number): Dyna
           `;
         };
       } else {
-        const correctVal = '1/4';
+        const rCount = Math.floor(Math.random() * 3) + 2; // 2 à 4
+        const bCount = Math.floor(Math.random() * 3) + 2; // 2 à 4
+        const total = rCount + bCount;
+        const numP = rCount * rCount;
+        const denP = total * total;
+        const correctVal = `${numP}/${denP}`;
+        
         q.title = 'Probabilités à 2 épreuves (Urne)';
-        q.question = 'Une urne contient 2 boules Rouges et 2 Bleues. On tire deux boules successivement avec remise. Quelle est la probabilité d\'obtenir deux boules Rouges $(R, R)$ ?';
-        setupOptions(correctVal, ['1/2', '1/8', '1/3']);
+        q.question = `Une urne contient ${rCount} boules Rouges et ${bCount} Bleues (soit ${total} boules au total). On tire deux boules successivement avec remise. Quelle est la probabilité d'obtenir deux boules Rouges $(R, R)$ ?`;
+        setupOptions(correctVal, [
+          `${rCount}/${total}`,
+          `${numP}/${denP + 4}`,
+          `${rCount * 2}/${total}`
+        ]);
         q.explanationHtml = `
-          <div><strong>Calcul :</strong> $P(R_1) = \\frac{2}{4} = \\frac{1}{2}$ et $P(R_2) = \\frac{1}{2}$.</div>
-          <div>$P(R, R) = \\frac{1}{2} \\times \\frac{1}{2} = \\frac{1}{4}$.</div>
+          <div><strong>Calcul :</strong> $P(R_1) = \\frac{${rCount}}{${total}}$ et $P(R_2) = \\frac{${rCount}}{${total}}$.</div>
+          <div>$P(R, R) = \\frac{${rCount}}{${total}} \\times \\frac{${rCount}}{${total}} = \\frac{${numP}}{${denP}}$.</div>
         `;
         q.hints = [
-          { level: 1, title: 'Probabilité simple', content: 'Calcule la probabilité d\'une boule Rouge : $\\frac{2}{4} = \\frac{1}{2}$.' },
-          { level: 2, title: 'Produit', content: 'Multiplie les deux tirages indépendants : $\\frac{1}{2} \\times \\frac{1}{2} = \\frac{1}{4}$.' }
+          { level: 1, title: 'Probabilité simple', content: `Calcule la probabilité d'une boule Rouge : $\\frac{${rCount}}{${total}}$.` },
+          { level: 2, title: 'Produit', content: `Multiplie les deux tirages indépendants : $\\frac{${rCount}}{${total}} \\times \\frac{${rCount}}{${total}} = \\frac{${numP}}{${denP}}$.` }
         ];
         q.svgOverlay = (svg) => {
           svg.innerHTML = `
-            <text x="150" y="28" fill="#f59e0b" font-size="15" font-weight="bold" text-anchor="middle">Urne : 2 Rouges et 2 Bleues</text>
+            <text x="150" y="28" fill="#f59e0b" font-size="15" font-weight="bold" text-anchor="middle">Urne : ${rCount} Rouges et ${bCount} Bleues</text>
             <rect x="45" y="55" width="90" height="95" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
             <circle cx="70" cy="85" r="12" fill="#ef4444"/>
             <circle cx="105" cy="85" r="12" fill="#ef4444"/>
@@ -709,18 +734,23 @@ export function generateDynamicQuestion(realm: string, questIndex: number): Dyna
     } else {
       const isCondition = Math.random() > 0.5;
       if (isCondition) {
-        const valX = 12;
-        const correctVal = '24';
+        const valX = Math.floor(Math.random() * 15) + 5; // 5 à 19
+        const isGreater = valX > 10;
+        const correctVal = isGreater ? String(valX * 2) : String(valX + 10);
         q.title = 'Algorithmique & Scratch — Instruction Conditionnelle';
         q.question = `On donne l'algorithme suivant avec $x = ${valX}$ : <br/><code>Si $x > 10$ Alors $x \\leftarrow x \\times 2$ Sinon $x \\leftarrow x + 10$</code>.<br/> Quelle est la valeur finale de $x$ ?`;
-        setupOptions(correctVal, ['22', '12', '120']);
+        setupOptions(correctVal, [
+          isGreater ? String(valX + 10) : String(valX * 2),
+          String(valX),
+          String(Number(correctVal) + 5)
+        ]);
         q.explanationHtml = `
-          <div><strong>Test de la condition :</strong> La condition $x > 10$ est <strong>VRAIE</strong> car $12 > 10$.</div>
-          <div><strong>Branche Alors :</strong> On applique $x \\leftarrow 12 \\times 2 = 24$.</div>
+          <div><strong>Test de la condition :</strong> La condition $x > 10$ est <strong>${isGreater ? 'VRAIE' : 'FAUSSE'}</strong> car $${valX} ${isGreater ? '>' : '\\le'} 10$.</div>
+          <div><strong>Branche ${isGreater ? 'Alors' : 'Sinon'} :</strong> On applique $x \\leftarrow ${isGreater ? `${valX} \\times 2 = ${valX * 2}` : `${valX} + 10 = ${valX + 10}`}$.</div>
         `;
         q.hints = [
           { level: 1, title: 'Tester la condition', content: `Vérifie si $${valX} > 10$.` },
-          { level: 2, title: 'Exécuter la bonne branche', content: `Comme la condition est vraie, effectue $${valX} \\times 2$.` }
+          { level: 2, title: 'Exécuter la bonne branche', content: `Comme la condition est ${isGreater ? 'vraie' : 'fausse'}, applique la branche ${isGreater ? 'Alors' : 'Sinon'}.` }
         ];
         q.svgOverlay = (svg) => {
           svg.innerHTML = `
@@ -739,34 +769,42 @@ export function generateDynamicQuestion(realm: string, questIndex: number): Dyna
           `;
         };
       } else {
-        const correctVal = '20';
+        const startVal = Math.floor(Math.random() * 6) + 2; // 2 à 7
+        const repeatCount = Math.floor(Math.random() * 3) + 2; // 2 à 4
+        const addVal = Math.floor(Math.random() * 5) + 3; // 3 à 7
+        const finalVal = startVal + repeatCount * addVal;
+        const correctVal = String(finalVal);
+
         q.title = 'Algorithmique & Scratch — Boucle Répéter';
-        q.question = 'On initialise une variable $x$ à $5$. On exécute l\'instruction : "Répéter 3 fois : Ajouter à $x$ la valeur 5". Quelle est la valeur finale de $x$ ?';
-        setupOptions(correctVal, ['15', '25', '10']);
+        q.question = `On initialise une variable $x$ à $${startVal}$. On exécute l'instruction : "Répéter ${repeatCount} fois : Ajouter à $x$ la valeur ${addVal}". Quelle est la valeur finale de $x$ ?`;
+        setupOptions(correctVal, [
+          String(startVal + (repeatCount - 1) * addVal),
+          String(repeatCount * addVal),
+          String(finalVal + addVal)
+        ]);
         q.explanationHtml = `
           <div><strong>Déroulement de la boucle :</strong></div>
           <ul>
-            <li>Départ : $x = 5$</li>
-            <li>Tour 1 : $x = 5 + 5 = 10$</li>
-            <li>Tour 2 : $x = 10 + 5 = 15$</li>
-            <li>Tour 3 : $x = 15 + 5 = 20$</li>
+            <li>Départ : $x = ${startVal}$</li>
+            <li>Ajout total : $${repeatCount} \\times ${addVal} = ${repeatCount * addVal}$</li>
+            <li>Valeur finale : $x = ${startVal} + ${repeatCount * addVal} = ${finalVal}$</li>
           </ul>
         `;
         q.hints = [
-          { level: 1, title: 'Boucle', content: 'La boucle ajoute $5$ à chaque tour pendant 3 tours : $3 \\times 5 = 15$.' },
-          { level: 2, title: 'Ajout initial', content: 'N\'oublie pas la valeur de départ $5$ : $5 + 15 = 20$.' }
+          { level: 1, title: 'Boucle', content: `La boucle ajoute $${addVal}$ à chaque tour pendant ${repeatCount} tours : $${repeatCount} \\times ${addVal} = ${repeatCount * addVal}$.` },
+          { level: 2, title: 'Ajout initial', content: `N'oublie pas la valeur de départ $${startVal}$ : $${startVal} + ${repeatCount * addVal} = ${finalVal}$.` }
         ];
         q.svgOverlay = (svg) => {
           svg.innerHTML = `
-            <text x="150" y="28" fill="#f59e0b" font-size="15" font-weight="bold" text-anchor="middle">Structure de la Boucle (3 tours)</text>
+            <text x="150" y="28" fill="#f59e0b" font-size="15" font-weight="bold" text-anchor="middle">Structure de la Boucle (${repeatCount} tours)</text>
             <rect x="22" y="60" width="58" height="42" rx="6" fill="#1e293b" stroke="#94a3b8" stroke-width="1.5"/>
-            <text x="51" y="86" fill="#cbd5e1" font-size="14" font-weight="bold" text-anchor="middle">x = 5</text>
+            <text x="51" y="86" fill="#cbd5e1" font-size="14" font-weight="bold" text-anchor="middle">x = ${startVal}</text>
             <path d="M 80 80 L 95 80" stroke="#f59e0b" stroke-width="2.5"/>
             <rect x="95" y="60" width="58" height="42" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-            <text x="124" y="86" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">+ 5</text>
+            <text x="124" y="86" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">+ ${addVal}</text>
             <path d="M 153 80 L 168 80" stroke="#f59e0b" stroke-width="2.5"/>
             <rect x="168" y="60" width="58" height="42" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
-            <text x="197" y="86" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">+ 5</text>
+            <text x="197" y="86" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">× ${repeatCount}</text>
             <path d="M 226 80 L 241 80" stroke="#f59e0b" stroke-width="2.5"/>
             <rect x="241" y="60" width="50" height="42" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3 3"/>
             <text x="266" y="86" fill="#f59e0b" font-size="16" font-weight="extrabold" text-anchor="middle">?</text>

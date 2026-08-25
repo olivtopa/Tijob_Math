@@ -186,7 +186,11 @@ export function App() {
       setActiveTab('aventure');
     } else {
       setWaveIndex(prev => prev + 1);
-      const nextQ = generateDynamicQuestion(activeDungeon.realm, activeDungeon.questIndex);
+      let nextQ = generateDynamicQuestion(activeDungeon.realm, activeDungeon.questIndex);
+      // Éviter la répétition exacte consécutive
+      if (currentQuestion && nextQ.question === currentQuestion.question) {
+        nextQ = generateDynamicQuestion(activeDungeon.realm, activeDungeon.questIndex);
+      }
       setCurrentQuestion(nextQ);
       setFeedbackState(null);
     }
