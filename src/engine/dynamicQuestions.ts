@@ -1,8 +1,14 @@
-import { DynamicQuestion } from '../types/mathquest';
+import { DynamicQuestion, CycleId } from '../types/mathquest';
+import { generateSecondeQuestion } from './secondeDynamicQuestions';
+import { generateTerminaleQuestion } from './terminaleDynamicQuestions';
 
-export function generateDynamicQuestion(realm: string, questIndex: number): DynamicQuestion {
+export function generateDynamicQuestion(
+  realm: string,
+  questIndex: number,
+  cycle: CycleId = '3eme'
+): DynamicQuestion {
   let q: DynamicQuestion = {
-    id: `q_${realm}_${questIndex}_${Date.now()}`,
+    id: `q_${cycle}_${realm}_${questIndex}_${Date.now()}`,
     title: '',
     question: '',
     options: [],
@@ -48,6 +54,19 @@ export function generateDynamicQuestion(realm: string, questIndex: number): Dyna
     q.answer = correctStr;
   };
 
+  // 1. Spécificité Seconde / Lycée
+  if (cycle === 'lycee') {
+    const handled = generateSecondeQuestion(realm, questIndex, setupOptions, q);
+    if (handled) return q;
+  }
+
+  // 2. Spécificité Terminale
+  if (cycle === 'terminale') {
+    const handled = generateTerminaleQuestion(realm, questIndex, setupOptions, q);
+    if (handled) return q;
+  }
+
+  // 3. Spécificité 3ème / Brevet (par défaut)
   if (realm === 'Algèbre') {
     if (questIndex === 0) {
       const isAddition = Math.random() > 0.5;
@@ -813,6 +832,28 @@ export function generateDynamicQuestion(realm: string, questIndex: number): Dyna
         };
       }
     }
+  }
+
+  // Fallback sécurisé & enrichissement tous niveaux
+  if (!q.title) {
+    const a = Math.floor(Math.random() * 8) + 2;
+    const b = Math.floor(Math.random() * 8) + 2;
+    const prod = a * b;
+    q.title = `Défi Mathématique : ${realm || 'Calcul'}`;
+    q.question = `Résous l'équation $${a}x = ${prod}$. Que vaut $x$ ?`;
+    setupOptions(String(b), [
+      String(b + 1),
+      String(Math.max(1, b - 1)),
+      String(prod - a)
+    ]);
+    q.explanationHtml = `
+      <div><strong>Résolution :</strong> Pour isoler $x$, on divise par le coefficient devant $x$ :</div>
+      <div>$x = \\frac{${prod}}{${a}} = ${b}$.</div>
+    `;
+    q.hints = [
+      { level: 1, title: 'Opération inverse', content: `Divise les deux membres par ${a}.` },
+      { level: 2, title: 'Calcul', content: `$x = \\frac{${prod}}{${a}} = ${b}$.` }
+    ];
   }
 
   return q;

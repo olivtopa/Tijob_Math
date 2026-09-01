@@ -1,52 +1,10 @@
 import { Chapter, CycleId } from '../../types/mathquest';
 import { chapters3eme } from './3eme_brevet';
+import { chapters2nde } from './2nde_lycee';
 
 export const allChapters: Record<CycleId, Chapter[]> = {
   '3eme': chapters3eme,
-  'lycee': [
-    {
-      id: 'chap_fonctions_2nde',
-      cycle: 'lycee',
-      title: 'Généralités sur les Fonctions & Vecteurs',
-      subtitle: 'Étude de variations, équations de droites et calcul vectoriel',
-      icon: 'TrendingUp',
-      quests: [
-        {
-          id: 'quest_variations_2nde',
-          title: 'Étude de Variations & Droites',
-          description: 'Analyse les propriétés des fonctions de référence et équations de droites.',
-          iconName: 'LineChart',
-          isUnlocked: true,
-          exercises: [
-            {
-              id: 'ex_droite_1',
-              title: 'Coefficient directeur d\'une droite',
-              description: 'Soient $A(1, 2)$ et $B(4, 8)$. Détermine le coefficient directeur $m$ de la droite $(AB)$.',
-              difficulty: 'Moyen',
-              rewardXP: 160,
-              competencies: ['Calculer', 'Raisonner'],
-              steps: [
-                {
-                  id: 'step_drop_1',
-                  title: 'Calcul de m',
-                  instruction: 'Applique la formule $m = \\frac{y_B - y_A}{x_B - x_A}$.',
-                  expectedType: 'number',
-                  expectedAnswers: ['2'],
-                  hints: [
-                    {
-                      level: 1,
-                      title: 'Formule du taux',
-                      content: '$m = \\frac{8 - 2}{4 - 1} = \\frac{6}{3}$.'
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ],
+  'lycee': chapters2nde,
   'terminale': [
     {
       id: 'chap_analyse_term',

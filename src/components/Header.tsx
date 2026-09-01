@@ -36,45 +36,74 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* À droite : Sélecteur discret de niveau (pilule cliquable) */}
+        {/* À droite : Sélecteur de niveau adaptatif (Menu déroulant sur mobile, Pilules sur desktop) */}
         {purchasedCycles.length > 1 ? (
-          <div className="flex items-center bg-slate-950/90 p-1 rounded-xl border border-slate-800 shrink-0">
-            {purchasedCycles.includes('3eme') && (
-              <button
-                onClick={() => onCycleChange('3eme')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  userProfile.cycle === '3eme'
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
+          <div>
+            {/* Version Mobile : Menu déroulant compact et ergonomique (< 640px) */}
+            <div className="relative sm:hidden">
+              <select
+                value={userProfile.cycle}
+                onChange={(e) => onCycleChange(e.target.value as CycleId)}
+                className="appearance-none bg-slate-950/95 border border-slate-800 text-amber-400 text-xs font-extrabold py-1.5 pl-3 pr-7 rounded-xl focus:outline-none focus:border-amber-500 shadow-sm"
               >
-                3ème / Brevet
-              </button>
-            )}
-            {purchasedCycles.includes('lycee') && (
-              <button
-                onClick={() => onCycleChange('lycee')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  userProfile.cycle === 'lycee'
-                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Seconde / 1ère
-              </button>
-            )}
-            {purchasedCycles.includes('terminale') && (
-              <button
-                onClick={() => onCycleChange('terminale')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  userProfile.cycle === 'terminale'
-                    ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Terminale Spé
-              </button>
-            )}
+                {purchasedCycles.includes('3eme') && (
+                  <option value="3eme" className="bg-slate-900 text-slate-200">
+                    3ème / Brevet
+                  </option>
+                )}
+                {purchasedCycles.includes('lycee') && (
+                  <option value="lycee" className="bg-slate-900 text-purple-300">
+                    Seconde / 1ère
+                  </option>
+                )}
+                {purchasedCycles.includes('terminale') && (
+                  <option value="terminale" className="bg-slate-900 text-blue-300">
+                    Terminale Spé
+                  </option>
+                )}
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+
+            {/* Version Tablette & Ordinateur : Pilules côte à côte (>= 640px) */}
+            <div className="hidden sm:flex items-center bg-slate-950/90 p-1 rounded-xl border border-slate-800 shrink-0">
+              {purchasedCycles.includes('3eme') && (
+                <button
+                  onClick={() => onCycleChange('3eme')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                    userProfile.cycle === '3eme'
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  3ème / Brevet
+                </button>
+              )}
+              {purchasedCycles.includes('lycee') && (
+                <button
+                  onClick={() => onCycleChange('lycee')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                    userProfile.cycle === 'lycee'
+                      ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Seconde / 1ère
+                </button>
+              )}
+              {purchasedCycles.includes('terminale') && (
+                <button
+                  onClick={() => onCycleChange('terminale')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                    userProfile.cycle === 'terminale'
+                      ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Terminale Spé
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-800 bg-slate-900/80 text-slate-300 text-xs font-semibold hover:border-slate-700 cursor-default transition-all shadow-sm">

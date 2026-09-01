@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Clock, Play, X, Zap, Award, CheckCircle2, RotateCcw } from 'lucide-react';
-import { GameState } from '../types/mathquest';
+import { GameState, CycleId } from '../types/mathquest';
 import { MathRenderer } from './MathRenderer';
 import { generateNextRituelQuestion, RituelQuestion } from '../engine/rituelQuestions';
 
 interface RituelViewProps {
   gameState: GameState;
+  cycle?: CycleId;
   onUpdateGameState: (updater: (prev: GameState) => GameState) => void;
   onAddRewards?: (xp: number, gold: number) => void;
 }
 
 export const RituelView: React.FC<RituelViewProps> = ({
   gameState,
+  cycle = '3eme',
   onUpdateGameState,
   onAddRewards
 }) => {
@@ -48,7 +50,7 @@ export const RituelView: React.FC<RituelViewProps> = ({
     setIsFinished(false);
     setRewardToast(null);
     recentPromptsRef.current = [];
-    const firstQ = generateNextRituelQuestion(stage, []);
+    const firstQ = generateNextRituelQuestion(stage, [], cycle);
     recentPromptsRef.current.push(firstQ.prompt);
     setCurrentQ(firstQ);
   };
@@ -106,7 +108,7 @@ export const RituelView: React.FC<RituelViewProps> = ({
     }
 
     // Passage immédiat à la question suivante avec exclusion des questions déjà posées
-    const nextQ = generateNextRituelQuestion(activeStage!, recentPromptsRef.current);
+    const nextQ = generateNextRituelQuestion(activeStage!, recentPromptsRef.current, cycle);
     recentPromptsRef.current.push(nextQ.prompt);
     if (recentPromptsRef.current.length > 20) {
       recentPromptsRef.current.shift();

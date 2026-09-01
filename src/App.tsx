@@ -85,7 +85,7 @@ export function App() {
   const handleStartDungeon = (realm: string, questIdx: number) => {
     setActiveDungeon({ realm, questIndex: questIdx });
     setWaveIndex(1);
-    const firstQ = generateDynamicQuestion(realm, questIdx);
+    const firstQ = generateDynamicQuestion(realm, questIdx, userProfile.cycle);
     setCurrentQuestion(firstQ);
     setFeedbackState(null);
     setCurrentView('combat');
@@ -186,10 +186,10 @@ export function App() {
       setActiveTab('aventure');
     } else {
       setWaveIndex(prev => prev + 1);
-      let nextQ = generateDynamicQuestion(activeDungeon.realm, activeDungeon.questIndex);
+      let nextQ = generateDynamicQuestion(activeDungeon.realm, activeDungeon.questIndex, userProfile.cycle);
       // Éviter la répétition exacte consécutive
       if (currentQuestion && nextQ.question === currentQuestion.question) {
-        nextQ = generateDynamicQuestion(activeDungeon.realm, activeDungeon.questIndex);
+        nextQ = generateDynamicQuestion(activeDungeon.realm, activeDungeon.questIndex, userProfile.cycle);
       }
       setCurrentQuestion(nextQ);
       setFeedbackState(null);
@@ -202,7 +202,7 @@ export function App() {
       <Header
         userProfile={userProfile}
         onCycleChange={handleCycleChange}
-        purchasedCycles={['3eme']}
+        purchasedCycles={['3eme', 'lycee', 'terminale']}
       />
 
       {/* Main Container */}
@@ -220,6 +220,7 @@ export function App() {
             {activeTab === 'rituel' && (
               <RituelView
                 gameState={gameState}
+                cycle={userProfile.cycle}
                 onUpdateGameState={setGameState}
                 onAddRewards={(xp, gold) => {
                   setUserProfile(prev => ({
@@ -234,7 +235,7 @@ export function App() {
                 }}
               />
             )}
-            {activeTab === 'widgets' && <WidgetsView />}
+            {activeTab === 'widgets' && <WidgetsView cycle={userProfile.cycle} />}
             {activeTab === 'profile' && <ProfileView gameState={gameState} userProfile={userProfile} />}
           </>
         )}
