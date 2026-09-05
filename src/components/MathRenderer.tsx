@@ -12,8 +12,18 @@ export const MathRenderer: React.FC<MathRendererProps> = ({ content, className =
     // Helper function to render text containing inline $...$ or block $$...$$ LaTeX formulas
     if (!content) return '';
 
+    // If the entire string contains LaTeX math commands (\times, \frac, \sqrt, \mathbb, etc.) or ^ or _ without $ delimiters,
+    // wrap in $...$ for seamless Katex rendering
+    let preparedContent = content;
+    const hasLatexCommands = /\\[a-zA-Z]+|\^\{?[0-9a-zA-Z+-]+\}?|_[0-9a-zA-Z]/.test(preparedContent);
+    const hasDollarDelimiters = /\$/.test(preparedContent);
+
+    if (hasLatexCommands && !hasDollarDelimiters) {
+      preparedContent = `$${preparedContent}$`;
+    }
+
     // Regex to capture $$...$$ or $...$
-    const parts = content.split(/(\$\$.*?\$\$|\$.*?\$)/g);
+    const parts = preparedContent.split(/(\$\$.*?\$\$|\$.*?\$)/g);
 
     return parts.map((part) => {
       if (part.startsWith('$$') && part.endsWith('$$')) {

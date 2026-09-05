@@ -221,20 +221,21 @@ export function generateFlashcardsRituelQuestion(recentPrompts: string[] = [], c
 
       if (type === 'ensemble') {
         const samples = [
-          { val: '-7', ens: '\\mathbb{Z} (Entiers relatifs)' },
-          { val: '3,25', ens: '\\mathbb{D} (Décimaux)' },
-          { val: '\\frac{1}{3}', ens: '\\mathbb{Q} (Rationnels non décimaux)' },
-          { val: '\\pi', ens: '\\mathbb{R} (Réels irrationnels)' },
-          { val: '12', ens: '\\mathbb{N} (Entiers naturels)' },
-          { val: '-\\frac{15}{3}', ens: '\\mathbb{Z} (Car égal à -5)' },
-          { val: '\\sqrt{2}', ens: '\\mathbb{R} (Irrationnel)' }
+          { val: '-7', ens: '\\mathbb{Z} \\text{ (Entiers relatifs)}' },
+          { val: '3,25', ens: '\\mathbb{D} \\text{ (Décimaux)}' },
+          { val: '\\frac{1}{3}', ens: '\\mathbb{Q} \\text{ (Rationnels non décimaux)}' },
+          { val: '\\pi', ens: '\\mathbb{R} \\text{ (Réels irrationnels)}' },
+          { val: '12', ens: '\\mathbb{N} \\text{ (Entiers naturels)}' },
+          { val: '-\\frac{15}{3}', ens: '\\mathbb{Z} \\text{ (Entiers relatifs)}' },
+          { val: '\\sqrt{2}', ens: '\\mathbb{R} \\text{ (Réels irrationnels)}' }
         ];
         const item = samples[Math.floor(Math.random() * samples.length)];
         q = buildRituelQuestion(`Plus petit ensemble contenant $${item.val}$ :`, `$${item.ens}$`, [
-          '$\\mathbb{N}$ (Entiers naturels)',
-          '$\\mathbb{Z}$ (Entiers relatifs)',
-          '$\\mathbb{D}$ (Décimaux)',
-          '$\\mathbb{Q}$ (Rationnels)'
+          '$\\mathbb{N} \\text{ (Entiers naturels)}$',
+          '$\\mathbb{Z} \\text{ (Entiers relatifs)}$',
+          '$\\mathbb{D} \\text{ (Décimaux)}$',
+          '$\\mathbb{Q} \\text{ (Rationnels non décimaux)}$',
+          '$\\mathbb{R} \\text{ (Réels irrationnels)}$'
         ], 'flashcards');
       } else if (type === 'union_proba') {
         q = buildRituelQuestion('Formule de l\'Union $P(A \\cup B)$ :', '$P(A) + P(B) - P(A \\cap B)$', [
